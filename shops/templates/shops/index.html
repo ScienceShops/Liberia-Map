@@ -12,6 +12,8 @@
         <link rel="stylesheet" href="{% static "shops/css/L.Control.Locate.min.css" %}">
         <link rel="stylesheet" href="{% static "shops/css/qgis2web.css" %}">
         <link rel="stylesheet" href="{% static "shops/css/fontawesome-all.min.css" %}">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <style>
         html, body, #map {
             width: 100%;
@@ -19,7 +21,64 @@
             padding: 0;
             margin: 0;
         }
+
+        .accordion {
+            background-color: #ffffff;
+            font-size: 15px;
+            padding: 0px;
+            color: black;
+            font-weight: bold;
+            width: 245px;
+                        cursor: pointer;
+            display: block; 
+            margin: 0 auto;
+            overflow: hidden;
+            white-space:normal
+        }
+
+
+        .card-header .btn-block{
+            height: 20px;
+            height: 20px
+        }
+
+        .accordion .card-header {
+            background-color: #09839b;
+            font-size: 15px;
+            padding: 0px
+        }
+
+        .accordion .btn {
+            background-color: #09839b;
+            font-size: 15px;
+            color: white;
+            font-weight: bold
+        }
+
+        table {
+            margin: auto;
+            border-spacing:0;
+            border-collapse: collapse;
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .tg .tg-bold{
+            border-color:inherit;
+            text-align:center;
+            vertical-align:top;
+            font-weight:bold
+        }
+        .tg .tg-norm{
+            border-color:inherit;
+            text-align:center;
+            vertical-align:top
+        }
+        input{
+            border:2px solid #c8c8c8;
+        }
         </style>
+
         <title></title>
     </head>
     <body>
@@ -37,6 +96,10 @@
         <script src="{% static "shops/js/labels.js" %}"></script>
         <script src="{% static "shops/data/LIBlevel_1_1.js" %}"></script>
         <script src="{% static "shops/data/Points_of_Interest_001_2.js" %}"></script>
+        <script src="{% static "shops/data/counties.js" %}"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <script>
         var highlightLayer;
         function highlightFeature(e) {
@@ -49,7 +112,7 @@
             } else {
               highlightLayer.setStyle({
                 fillColor: '#ffff00',
-                fillOpacity: 0.6
+                fillOpacity: 0.2
               });
             }
         }
@@ -80,23 +143,9 @@
                 },
                 mouseover: highlightFeature,
             });
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['AREA'] !== null ? Autolinker.link(String(feature.properties['AREA'])) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['PERIMETER'] !== null ? Autolinker.link(String(feature.properties['PERIMETER'])) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['ID'] !== null ? Autolinker.link(String(feature.properties['ID'])) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['CAPTION'] !== null ? Autolinker.link(String(feature.properties['CAPTION'])) : '') + '</td>\
-                    </tr>\
-                </table>';
+            var popupContent = '<table><tr><td colspan="2">' + (feature.properties['CAPTION'] !== null ? Autolinker.link(String(feature.properties['CAPTION'])) : '') + '</td></tr></table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
         }
-
         function style_LIBlevel_1_1_0() {
             return {
                 pane: 'pane_LIBlevel_1_1',
@@ -107,8 +156,8 @@
                 lineJoin: 'miter',
                 weight: 1.0, 
                 fill: true,
-                fillOpacity: 0.6,
-                fillColor: 'rgba(133,182,111,1.0)',
+                fillOpacity: 0.1,
+                fillColor: 'rgba(9,130,155,1.0)',
             }
         }
         map.createPane('pane_LIBlevel_1_1');
@@ -122,6 +171,7 @@
         });
         bounds_group.addLayer(layer_LIBlevel_1_1);
         map.addLayer(layer_LIBlevel_1_1);
+
         function pop_Points_of_Interest_001_2(feature, layer) {
             layer.on({
                 mouseout: function(e) {
@@ -131,40 +181,82 @@
                 },
                 mouseover: highlightFeature,
             });
-            var popupContent = '<table>\
-                    <tr>\
-                        <th scope="row">Shop</th>\
-                        <td>' + (feature.properties['Shop Name'] !== null ? Autolinker.link(String(feature.properties['Shop Name'])) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">Lat</th>\
-                        <td>' + (feature.geometry.coordinates[0] !== null ? Autolinker.link(String(feature.geometry.coordinates[0])) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">Long</th>\
-                        <td>' + (feature.geometry.coordinates[1] !== null ? Autolinker.link(String(feature.geometry.coordinates[1])) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">Items</th>\
-                        <td><ul>'+ feature.properties['Items'].map(i => '<li>' + i + '</li>').join('') + '</ul></td>\
-                    </tr>\
-                </table>';
+
+            var shop_photo = ''; //(feature.properties['shop_photo'] !== null ? Autolinker.link(String(feature.properties['shop_photo'])) : '');
+            var shop_name = '';  // (feature.properties['shop_name'] !== null ? Autolinker.link(String(feature.properties['shop_name'])) : '');
+            var supply_list_str = ''; //(feature.properties['supply_list'] !== null ? Autolinker.link(String(feature.properties['supply_list'])) : '').split(";");
+            var general_notes = ''; 
+            var last_updated = ''; 
+            //var general_notes = supply_list_str[supply_list_str.length-2].substring('general_notes=\''.length,general_notes.length-1);
+            //var last_updated =  supply_list_str[supply_list_str.length-1].substring('last_updated=\''.length,last_updated.length-1);
+
+            var table_start = '<table class=\"tg\"><col style="width: 220px">';
+
+            var phy_supply_list_tabl = table_start;
+            var cst_supply_list_tabl = table_start;
+            var chm_supply_list_tabl = table_start;
+            var bio_supply_list_tabl = table_start;
+            var sft_supply_list_tabl = table_start;
+
+            for (var ii=0; ii < supply_list_str.length-2; ii++) {
+                var supply_list_cell = supply_list_str[ii].split(",");
+
+                if(supply_list_cell[1].search('true')>-1) {
+
+                    var row = "<tr><td class = \'tg-bold\'>" +
+                        supply_list_cell[0].substring(10,supply_list_cell[0].length-1) +
+                        "</td></tr><tr><td class = \'tg-norm\'>" + supply_list_cell[2].substring(10,supply_list_cell[2].length-1) +
+                        " " + supply_list_cell[3].substring(10,supply_list_cell[3].length-1) +
+                        " " + supply_list_cell[4].substring(10,supply_list_cell[4].length-1) +
+                        "</td></tr><tr><td>&nbsp</td></tr>";
+  
+                    if (supply_list_cell[0].substring(0,3)=='phy') {
+                        phy_supply_list_tabl= phy_supply_list_tabl + row;
+                    } else if (supply_list_cell[0].substring(0,3)=='cst') {
+                        cst_supply_list_tabl= cst_supply_list_tabl + row;
+                    } else if (supply_list_cell[0].substring(0,3)=='chm') {
+                        chm_supply_list_tabl= chm_supply_list_tabl + row;
+                    } else if (supply_list_cell[0].substring(0,3)=='bio') {
+                        bio_supply_list_tabl= bio_supply_list_tabl + row;
+                    } else if (supply_list_cell[0].substring(0,3)=='sft') {
+                        sft_supply_list_tabl= sft_supply_list_tabl + row;
+                    }
+                }
+            }
+
+            phy_supply_list_tabl = phy_supply_list_tabl.substring(0,phy_supply_list_tabl.length-23) +  '</table>';
+            cst_supply_list_tabl = cst_supply_list_tabl.substring(0,cst_supply_list_tabl.length-23) +  '</table>';
+            chm_supply_list_tabl = chm_supply_list_tabl.substring(0,chm_supply_list_tabl.length-23) +  '</table>';
+            bio_supply_list_tabl = bio_supply_list_tabl.substring(0,bio_supply_list_tabl.length-23) +  '</table>';
+            sft_supply_list_tabl = sft_supply_list_tabl.substring(0,sft_supply_list_tabl.length-23) +  '</table>';
+
+            var popupContent = '<div class="accordion" id="accordionExample">'+
+                '<div class="card"><div class="card-header" id="headingZero"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseZero" aria-expanded="false" aria-controls="collapseZero">'+shop_name+'</button></h2></div><div id="collapseZero" class="collapse" aria-labelledby="headingZero" data-parent="#accordionExample"><div class="card-body"><center>'+ shop_photo + '</center></div></div></div>'+
+                '<div class="card"><div class="card-header" id="headingOne"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">Physics</button></h2></div><div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample"><div class="card-body">'+ phy_supply_list_tabl + '</div></div></div>'+
+                '<div class="card"><div class="card-header" id="headingTwo"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Chemistry</button></h2></div><div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample"><div class="card-body">'+ cst_supply_list_tabl + '</div></div></div>'+
+                '<div class="card"><div class="card-header" id="headingThree"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">Chemicals</button></h2></div><div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">\
+                <div class="card-body">'+ chm_supply_list_tabl + '</div></div></div>'+
+                '<div class="card"><div class="card-header" id="headingFour"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">Biology</button></h2></div><div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionExample"><div class="card-body">'+ bio_supply_list_tabl + '</div></div></div>'+
+                '<div class="card"><div class="card-header" id="headingFive"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">Safety</button></h2></div><div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample"><div class="card-body">'+ sft_supply_list_tabl + '</div></div></div>'+
+                '<div class="card"><div class="card-header" id="headingSix"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">General Notes</button></h2></div><div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordionExample"><div class="card-body"><table><tr><td>'+general_notes+'</td></tr></table></div></div></div>'+
+                '</div><center><br>Last Updated: ' + last_updated + '</center>';
+
             layer.bindPopup(popupContent, {maxHeight: 400});
         }
 
         function style_Points_of_Interest_001_2_0() {
             return {
                 pane: 'pane_Points_of_Interest_001_2',
-                radius: 4.0,
+                radius: 6.0,
                 opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
+                color: 'rgba(0,0,0,1.0)',
                 dashArray: '',
                 lineCap: 'butt',
                 lineJoin: 'miter',
                 weight: 1,
                 fill: true,
                 fillOpacity: 1,
-                fillColor: 'rgba(229,182,54,1.0)',
+                fillColor: 'rgba(155,53,9,1.0)',
             }
         }
         map.createPane('pane_Points_of_Interest_001_2');
@@ -187,6 +279,7 @@
               "features": points
             }
 
+
             var layer_Points_of_Interest_001_2 = new L.geoJson(json_Points_of_Interest_001_2, {
                 attribution: '',
                 pane: 'pane_Points_of_Interest_001_2',
@@ -201,6 +294,12 @@
             });
             bounds_group.addLayer(layer_Points_of_Interest_001_2);
             map.addLayer(layer_Points_of_Interest_001_2);
+
+            var baseMaps = {};
+            L.control.layers(baseMaps, {
+              '<img src="legend/001_shops_2.png" /> 001_shops': layer_001_shops_2,
+              '<img src="legend/003_counties_1.png" /> 003_counties': layer_003_counties_1
+            }).addTo(map);
 
             setBounds();
         }
