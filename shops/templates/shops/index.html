@@ -55,6 +55,10 @@
             font-weight: bold
         }
 
+        #accordion-template {
+          display: hidden;
+        }
+
         table {
             margin: auto;
             border-spacing:0;
@@ -84,6 +88,87 @@
     <body>
         <div id="map">
         </div>
+
+        <div id="accordion-template">
+          <div class="accordion" id="accordionExample">
+            <div class="card">
+              <div class="card-header" id="headingZero">
+                <h2 class="mb-0">
+                  <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseShopName" aria-expanded="false" aria-controls="collapseShopName">'+shop_name+'</button>
+                </h2>
+              </div>
+              <div id="collapseShopName" class="collapse" aria-labelledby="headingZero" data-parent="#accordionExample">
+                <div class="card-body">
+                  <center>Shop Name!</center>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header" id="headingOne">
+                <h2 class="mb-0">
+                  <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">Physics</button>
+                </h2>
+              </div>
+              <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body">'+ phy_supply_list_tabl + '</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header" id="headingTwo">
+                <h2 class="mb-0">
+                  <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Chemistry</button>
+                </h2>
+              </div>
+              <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                <div class="card-body">'+ cst_supply_list_tabl + '</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header" id="headingThree">
+                <h2 class="mb-0">
+                  <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">Chemicals</button>
+                </h2>
+              </div>
+              <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+                <div class="card-body">'+ chm_supply_list_tabl + '</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header" id="headingFour">
+                <h2 class="mb-0">
+                  <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">Biology</button>
+                </h2>
+              </div>
+              <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionExample">
+                <div class="card-body">'+ bio_supply_list_tabl + '</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header" id="headingFive">
+                <h2 class="mb-0">
+                  <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">Safety</button>
+                </h2>
+              </div>
+              <div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample">
+                <div class="card-body">'+ sft_supply_list_tabl + '</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header" id="headingSix">
+                <h2 class="mb-0">
+                  <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">General Notes</button>
+                </h2>
+              </div>
+              <div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordionExample">
+                <div class="card-body">
+                  <table><tr><td>general_notes</td></tr></table>
+                </div>
+              </div>
+            </div>
+            <center><br>last_updated</center>';
+          </div>
+        </div>
+
         <script src="{% static "shops/js/qgis2web_expressions.js" %}"></script>
         <script src="{% static "shops/js/leaflet.js" %}"></script>
         <script src="{% static "shops/js/L.Control.Locate.min.js" %}"></script>
@@ -230,18 +315,30 @@
             bio_supply_list_tabl = bio_supply_list_tabl.substring(0,bio_supply_list_tabl.length-23) +  '</table>';
             sft_supply_list_tabl = sft_supply_list_tabl.substring(0,sft_supply_list_tabl.length-23) +  '</table>';
 
-            var popupContent = '<div class="accordion" id="accordionExample">'+
-                '<div class="card"><div class="card-header" id="headingZero"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseZero" aria-expanded="false" aria-controls="collapseZero">'+shop_name+'</button></h2></div><div id="collapseZero" class="collapse" aria-labelledby="headingZero" data-parent="#accordionExample"><div class="card-body"><center>'+ shop_photo + '</center></div></div></div>'+
-                '<div class="card"><div class="card-header" id="headingOne"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">Physics</button></h2></div><div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample"><div class="card-body">'+ phy_supply_list_tabl + '</div></div></div>'+
-                '<div class="card"><div class="card-header" id="headingTwo"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">Chemistry</button></h2></div><div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample"><div class="card-body">'+ cst_supply_list_tabl + '</div></div></div>'+
-                '<div class="card"><div class="card-header" id="headingThree"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">Chemicals</button></h2></div><div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">\
-                <div class="card-body">'+ chm_supply_list_tabl + '</div></div></div>'+
-                '<div class="card"><div class="card-header" id="headingFour"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">Biology</button></h2></div><div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordionExample"><div class="card-body">'+ bio_supply_list_tabl + '</div></div></div>'+
-                '<div class="card"><div class="card-header" id="headingFive"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">Safety</button></h2></div><div id="collapseFive" class="collapse" aria-labelledby="headingFive" data-parent="#accordionExample"><div class="card-body">'+ sft_supply_list_tabl + '</div></div></div>'+
-                '<div class="card"><div class="card-header" id="headingSix"><h2 class="mb-0"><button class="btn btn-link collapsed" type="button"data-toggle="collapse"data-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">General Notes</button></h2></div><div id="collapseSix" class="collapse" aria-labelledby="headingSix" data-parent="#accordionExample"><div class="card-body"><table><tr><td>'+general_notes+'</td></tr></table></div></div></div>'+
-                '</div><center><br>Last Updated: ' + last_updated + '</center>';
+            shop_details = {
+              "id": 1,
+              "name": "",
+              "photo": "",
+              "general": "",
+              "last_updated": "",
+              "supply_map": {
+                "phy": [],
+                "cst": [],
+                "chm": [],
+                "bio": [],
+                "sft": [],
+              }
+            }
+
+            var popupContent = createPopUpContent(shop_details);
 
             layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function createPopUpContent(shop_details) {
+          // TODO replace html IDs with ID unique to shop
+          // Replace template data with shop data from shop details
+          return $('#accordion-template').clone().html();
         }
 
         function style_Points_of_Interest_001_2_0() {
@@ -279,7 +376,6 @@
               "features": points
             }
 
-
             var layer_Points_of_Interest_001_2 = new L.geoJson(json_Points_of_Interest_001_2, {
                 attribution: '',
                 pane: 'pane_Points_of_Interest_001_2',
@@ -295,11 +391,11 @@
             bounds_group.addLayer(layer_Points_of_Interest_001_2);
             map.addLayer(layer_Points_of_Interest_001_2);
 
-            var baseMaps = {};
-            L.control.layers(baseMaps, {
-              '<img src="legend/001_shops_2.png" /> 001_shops': layer_001_shops_2,
-              '<img src="legend/003_counties_1.png" /> 003_counties': layer_003_counties_1
-            }).addTo(map);
+            //var baseMaps = {};
+            //.control.layers(baseMaps, {
+            // '<img src="legend/001_shops_2.png" /> 001_shops': layer_001_shops_2,
+            // '<img src="legend/003_counties_1.png" /> 003_counties': layer_003_counties_1
+            //).addTo(map);
 
             setBounds();
         }
