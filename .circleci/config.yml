@@ -11,9 +11,15 @@ jobs:
 
       - restore_cache:
           keys:
-            - "{{ .Branch }}"
+            - "docker-{{ .Branch }}"
           paths:
             - /caches/app.tar
+
+      - restore_cache:
+          keys:
+            - "pip-{{ .Branch }}"
+          paths:
+            - /app/.cache/
 
       - run:
           name: Load Docker image layer cache
@@ -35,9 +41,14 @@ jobs:
             docker save -o /caches/app.tar ${DOCKER_IMAGE}:${DOCKER_TAG}
 
       - save_cache:
-          key: "{{ .Branch }}-{{ epoch }}"
+          key: "docker-{{ .Branch }}-{{ epoch }}"
           paths:
             - /caches/app.tar
+
+      - save_cache:
+          key: "pip-{{ .Branch }}-{{ epoch }}"
+          paths:
+            - /app/.cache/
 
       - run:
           name: Push docker image to GCE
