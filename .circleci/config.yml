@@ -81,13 +81,14 @@ jobs:
             gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
             gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
             gcloud auth --quiet configure-docker
+            gcloud container clusters get-credentials --zone $GOOGLE_COMPUTE_ZONE liberia-cluster
 
       - run:
           name: Restart deployment
           command: kubectl rollout restart deployment liberia-deployment
 
       - run:
-          name: Restart deployment
+          name: Kill old containers
           # Kill the other pod taking up to much space/resources.
           # If we had more money, we could just increase size of node.
           command: kubectl get pods | awk '/liberia.*Running/{print $1}' | xargs kubectl delete pod
