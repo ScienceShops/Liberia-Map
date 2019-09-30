@@ -23,7 +23,7 @@ jobs:
 
       - run:
           name: Build application Docker image
-          command: |
+          command: >
             docker build
             --cache-from=${DOCKER_IMAGE}:${DOCKER_TAG}
             -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
