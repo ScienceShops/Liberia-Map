@@ -10,12 +10,14 @@ jobs:
       - setup_remote_docker
 
       - restore_cache:
+          name: Restoring Docker image cache
           keys:
             - "docker-{{ .Branch }}"
           paths:
             - /caches/app.tar
 
       - restore_cache:
+          name: Restoring PIP cache
           keys:
             - "pip-{{ .Branch }}"
           paths:
@@ -41,11 +43,13 @@ jobs:
             docker save -o /caches/app.tar ${DOCKER_IMAGE}:${DOCKER_TAG}
 
       - save_cache:
+          name: Caching Docker images
           key: "docker-{{ .Branch }}-{{ epoch }}"
           paths:
             - /caches/app.tar
 
       - save_cache:
+          name: Caching PIP
           key: "pip-{{ .Branch }}-{{ epoch }}"
           paths:
             - /app/.cache/
@@ -78,11 +82,15 @@ jobs:
             gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
             gcloud auth --quiet configure-docker
 
-      - kubectl rollout restart deployment liberia-deployment
-      # Kill the other pod taking up to much space/resources.
-      # If we had more money, we could just increase size of node.
-      - kubectl get pods | awk '/liberia.*Running/{print $1}' | xargs kubectl delete pod
+      - run:
+          name: Restart deployment
+          command: kubectl rollout restart deployment liberia-deployment
 
+      - run:
+          name: Restart deployment
+          # Kill the other pod taking up to much space/resources.
+          # If we had more money, we could just increase size of node.
+          command: kubectl get pods | awk '/liberia.*Running/{print $1}' | xargs kubectl delete pod
 
 workflows:
   version: 2
