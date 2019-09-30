@@ -11,7 +11,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - {{ .Branch }}
+            - "{{ .Branch }}"
           paths:
             - /caches/app.tar
 
@@ -33,7 +33,7 @@ jobs:
             docker save -o /caches/app.tar app
 
       - save_cache:
-          key: {{ .Branch }}-{{ epoch }}
+          key: "{{ .Branch }}-{{ epoch }}"
           paths:
             - /caches/app.tar
 
