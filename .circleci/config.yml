@@ -30,7 +30,7 @@ jobs:
           name: Save Docker image layer cache
           command: |
             mkdir -p /caches
-            docker save -o /caches/app.tar app
+            docker save -o /caches/app.tar gcr.io/unified-academy-252221/liberia:latest
 
       - save_cache:
           key: "{{ .Branch }}-{{ epoch }}"
