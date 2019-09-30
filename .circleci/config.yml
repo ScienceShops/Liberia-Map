@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: /app
     docker:
-      - image: docker:17.05.0-ce-git
+      - image: google/cloud-sdk
 
     steps:
       - checkout
@@ -11,9 +11,15 @@ jobs:
 
       - restore_cache:
           keys:
-            - {{ .Branch }}
+            - "docker-{{ .Branch }}"
           paths:
             - /caches/app.tar
+
+      - restore_cache:
+          keys:
+            - "pip-{{ .Branch }}"
+          paths:
+            - /app/.cache/
 
       - run:
           name: Load Docker image layer cache
@@ -23,22 +29,72 @@ jobs:
 
       - run:
           name: Build application Docker image
-          command: |
-            docker build --cache-from=app -t gcr.io/unified-academy-252221/liberia:latest .
+          command: >
+            docker build
+            --cache-from=${DOCKER_IMAGE}:${DOCKER_TAG}
+            -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
 
       - run:
           name: Save Docker image layer cache
           command: |
             mkdir -p /caches
-            docker save -o /caches/app.tar app
+            docker save -o /caches/app.tar ${DOCKER_IMAGE}:${DOCKER_TAG}
 
       - save_cache:
-          key: {{ .Branch }}-{{ epoch }}
+          key: "docker-{{ .Branch }}-{{ epoch }}"
           paths:
             - /caches/app.tar
+
+      - save_cache:
+          key: "pip-{{ .Branch }}-{{ epoch }}"
+          paths:
+            - /app/.cache/
+
+      # might need to gcloud init
+      - run: 
+          name: Activate GCP environment
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud auth --quiet configure-docker
 
       - run:
           name: Push docker image to GCE
           command: |
-            docker push gcr.io/unified-academy-252221/liberia:latest
+            docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+
+  deploy:
+    working_directory: /app
+    docker:
+      - image: google/cloud-sdk
+
+    steps:
+      - run:
+          name: Activate GCP environment
+          command: |
+            echo $GCLOUD_SERVICE_KEY | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud --quiet config set compute/zone ${GOOGLE_COMPUTE_ZONE}
+            gcloud auth --quiet configure-docker
+
+      - kubectl rollout restart deployment liberia-deployment
+      # Kill the other pod taking up to much space/resources.
+      # If we had more money, we could just increase size of node.
+      - kubectl get pods | awk '/liberia.*Running/{print $1}' | xargs kubectl delete pod
+
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
+
+      - deploy:
+          requires:
+            - build
 
