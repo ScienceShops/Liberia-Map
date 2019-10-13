@@ -89,6 +89,7 @@
     <center>
       <font color=#09829b>
         <form action="/new-shop/" method="POST">
+        {% csrf_token %}
         <br><h2>Science Supplies Submission Form</h2>
         <br><h5 id="locationmessage"></h5>
 
