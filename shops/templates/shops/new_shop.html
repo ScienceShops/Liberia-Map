@@ -1,0 +1,520 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" 
+          href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" 
+          integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="crossorigin=""/>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css" />
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css" />
+
+    <link rel="stylesheet" href="{% static "shops/css/leaflet.css" %}">
+    <link rel="stylesheet" href="{% static "shops/css/L.Control.Locate.min.css" %}">
+    <link rel="stylesheet" href="{% static "shops/css/qgis2web.css" %}">
+    <link rel="stylesheet" href="{% static "shops/css/fontawesome-all.min.css" %}">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+
+    <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+            integrity="sha512-/Nsx9X4HebavoBvEBuyp3I7od5tA0UzAxs+j83KgC8PU0kgB4XiK4Lfe4y4cgBtaRJQEIFCW+oC506aPT2L1zw=="crossorigin=""></script>
+ 
+    <script type='text/javascript' src='https://code.jquery.com/jquery-3.3.1.min.js'> </script>
+
+    <script src="{% static "shops/js/L.Control.Locate.min.js" %}"></script>
+
+    <script type='text/javascript' 
+            src='https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js'></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+
+    <style>
+
+      .accordion {
+		background-color: #ffffff;
+		font-size: 15px;
+		padding: 0px;
+ 		width: 400px;
+		color: black;
+		font-weight: bold;
+		/* cursor: pointer; */
+ 		display: block; 
+		margin: 0 auto;
+		overflow: hidden;} 
+
+      .accordion .card-header {background-color: #09839b;
+	                       font-size: 15px;}
+ 
+      .accordion .btn {background-color: #09839b;
+	               font-size: 15px;
+                       color: white;
+                       font-weight: bold;} 
+
+       table {margin: auto;
+	       border-spacing:0;
+ 	       border-collapse: collapse;
+               font-size: 12px;}
+
+	       tr:nth-child(odd) {background-color:  #f0f0f0;}
+	
+        #map{ max-width:400px; 
+		height: 500px; 
+		margin: auto; 
+		border: 3px solid #09839b;}
+
+	
+    	input{border:2px solid #c8c8c8;}
+
+
+</style>
+  </head>
+
+
+<!-- ########################### Table Scripts ################################ -->
+
+  <body>
+    <center>
+      <font color=#09829b>
+        <form action="/new-shop/" method="POST">
+        {% csrf_token %}
+        <br><h2>Science Supplies Submission Form</h2>
+        <br><h5 id="locationmessage"></h5>
+
+        <table>
+	  <tr></tr>
+  	  <tr>
+            <td align="right">Latitude:</td> 
+            <td><input type="text" name="shoplatitude" id="shoplatt" readonly></input></td>
+	  </tr>
+ 	  <tr></tr>
+	  <tr>
+	    <td align="right">Longitude: </td>
+            <td><input type="text" name="shoplongitude" id="shoplong" readonly></input></td>
+          </tr>
+        </table>
+
+        <br>
+         
+<!-- ########################### Shop Location ################################ -->
+
+          <div id="imap">
+            <div id="map">
+            </div>
+          </div>
+
+<br>
+
+<div class="accordion" id="accordionExample">
+
+<!-- ########################### Shop Photo ################################ -->
+
+  <div class="card">
+    <div class="card-header" id="headingZero">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" 
+                type="button" 
+                data-toggle="collapse" 
+                data-target="#collapseZero" 
+                aria-expanded="false" 
+                aria-controls="collapseZero">
+
+          Shop Photo (Optional)
+
+        </button>
+      </h2>
+    </div>
+    <div id="collapseZero"
+         class="collapse"
+         aria-labelledby="headingZero"
+         data-parent="#accordionExample">
+      <div class="card-body">
+
+  	   <input type="file" name="pic" accept="image/*">
+
+      </div>
+    </div>
+  </div>
+
+<!-- ########################### Physics ################################ -->
+
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" 
+                type="button" 
+                data-toggle="collapse"
+                data-target="#collapseOne" 
+                aria-expanded="false" 
+                aria-controls="collapseOne">
+
+          Physics
+
+        </button>
+      </h2>
+    </div>
+    <div id="collapseOne" 
+         class="collapse"
+         aria-labelledby="headingOne"
+         data-parent="#accordionExample">
+      <div class="card-body">
+        <table id="phy_table">
+          <col style="width: 5px">
+	  <col style="width: 260px">
+	  <col style="width: 5px">
+	  <col style="width: 5px">
+          <col style="width: 5px">
+
+
+        </table>
+      </div>
+    </div>
+  </div>
+
+<!-- ########################### Chemistry ################################ -->
+
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" 
+                type="button" 
+                data-toggle="collapse"
+                data-target="#collapseTwo" 
+                aria-expanded="false" 
+                aria-controls="collapseTwo">
+
+          Chemistry
+
+        </button>
+      </h2>
+    </div>
+    <div id="collapseTwo"
+         class="collapse"
+         aria-labelledby="headingTwo"
+         data-parent="#accordionExample">
+      <div class="card-body">
+        <table id = cst_table>
+          <col style="width: 5px">
+	  <col style="width: 260px">
+	  <col style="width: 5px">
+	  <col style="width: 5px">
+          <col style="width: 5px">
+
+	</table>
+      </div>
+    </div>
+  </div>
+
+<!-- ########################### Chemicals ################################ -->
+
+  <div class="card">
+    <div class="card-header" id="headingThree">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" 
+                type="button" 
+                data-toggle="collapse" 
+                data-target="#collapseThree"
+                aria-expanded="false" 
+                aria-controls="collapseThree">
+
+          Chemicals
+
+        </button>
+      </h2>
+    </div>
+    <div id="collapseThree" 
+         class="collapse"
+         aria-labelledby="headingThree"
+         data-parent="#accordionExample">
+      <div class="card-body">
+        <table id = chm_table>
+          <col style="width: 5px">
+	  <col style="width: 260px">
+	  <col style="width: 5px">
+	  <col style="width: 5px">
+          <col style="width: 5px">
+
+	</table>
+      </div>
+    </div>
+  </div>
+
+<!-- ########################### Biology ################################ -->
+
+  <div class="card">
+    <div class="card-header" id="headingFour">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" 
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseFour"
+                aria-expanded="false"
+                aria-controls="collapseFour">
+
+          Biology
+
+        </button>
+      </h2>
+    </div>
+    <div id="collapseFour"
+         class="collapse"
+         aria-labelledby="headingFour"
+         data-parent="#accordionExample">
+      <div class="card-body">
+
+        <table id = bio_table>
+          <col style="width: 5px">
+	  <col style="width: 260px">
+	  <col style="width: 5px">
+	  <col style="width: 5px">
+          <col style="width: 5px">
+
+	</table>
+      </div>
+    </div>
+  </div>
+
+<!-- ########################### Safety Supplies ################################ -->
+
+  <div class="card">
+    <div class="card-header" id="headingFive">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" 
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseFive"
+                aria-expanded="false"
+                aria-controls="collapseFive">
+
+          Safety Supplies
+
+        </button>
+      </h2>
+    </div>
+    <div id="collapseFive"
+         class="collapse"
+         aria-labelledby="headingFive"
+         data-parent="#accordionExample">
+      <div class="card-body">
+        <table id = sft_table>
+          <col style="width: 5px">
+	  <col style="width: 260px">
+	  <col style="width: 5px">
+	  <col style="width: 5px">
+          <col style="width: 5px">
+
+	</table>
+      </div>
+    </div>
+  </div>
+
+<!-- ########################### General Notes ################################ -->
+
+  <div class="card">
+    <div class="card-header" id="headingSix">
+      <h2 class="mb-0">
+        <button class="btn btn-link collapsed" 
+                type="button"
+                data-toggle="collapse"
+                data-target="#collapseSix"
+                aria-expanded="false"
+                aria-controls="collapseSix">
+
+          General Notes
+
+        </button>
+      </h2>
+    </div>
+    <div id="collapseSix"
+         class="collapse"
+         aria-labelledby="headingSix"
+         data-parent="#accordionExample">
+      <div class="card-body">
+	  <input type="text" name="general_notes"></input>
+      </div>
+    </div>
+  </div>
+
+</div>
+<br>
+<input type="hidden" name ='last_updated' id="todays_date">
+<p>Password</p>
+<input type="text" name="submission_password"></input>
+<br>
+<br><input type="submit">
+
+</form>
+</font>
+</center>
+</body>
+
+
+<!-- ########################### Table Scripts ################################ -->
+
+<script>
+
+	// var field = document.querySelector('#today');
+	var date = new Date();
+
+	var month_num = (date.getMonth()+1).toString().padStart(2, 0);
+	
+	var month_name = '';
+
+		if (month_num== 0){month_name='January'}
+           else if (month_num== 2){month_name='February'}
+	   else if (month_num== 3){month_name='March'}
+	   else if (month_num== 4){month_name='April'}
+	   else if (month_num== 5){month_name='May'}
+           else if (month_num== 6){month_name='June'}
+           else if (month_num== 7){month_name='July'}
+           else if (month_num== 8){month_name='August'}
+           else if (month_num== 9){month_name='September'}
+           else if (month_num==10){month_name='October'}
+           else if (month_num==11){month_name='November'}
+           else if (month_num==12){month_name='December'};
+
+	// Set the date
+	var todays_date = document.getElementById("todays_date"); 
+	    todays_date.setAttribute('value', 'aaa');
+
+	var todays_date = document.getElementById("todays_date"); 
+	    todays_date.setAttribute('value', date.getFullYear().toString() + ' ' + 
+                                              month_name + ' ' + date.getDate().toString().padStart(2, 0));
+
+  //var cellA = '' var cellB = '' var cellC = '' var cellD = '' var row = '' var row_index_str = '';
+
+	var phy_list = ['AAAA phy','Ammeter','Bar Magnet','Battery Case','C Clamp',
+	'Calorimeter','Compass','Concave Mirror','Converging Lens',
+	'Convex Mirror','Crocodile Clips','Diverging Lens',
+	'Glass Block','Hydrometer','Meter Stick',
+	'Micrometer Screw Gauge','Mirror / Lens Stand',
+	'Pulley','Ray Box','Rheostat','Spring','Spring Scale','Thermometer',
+	'Triangular Prism','Tuning Fork','Vernier Caliper','Voltmeter','Weights'];phy_list.sort()
+
+	var cst_list = ['AAAA cst','Balance','Beaker (glass)','Beaker (plastic / rubber)','Bosshead Clamp',
+	'Burette','Burette Clamp','Centrifuge','Centrifuge Tubes','Conical Flask',
+	'Crucible','Dropper','Dropper Bottle','Evaporation Dish','Filter Paper',
+	'Glass Rod','Graduated Cylinder','Kerosene Burner','Pipe Clay Triangle',
+	'Retort Stand / Ring Stand','Separating Funnel','Small Gas Stove',
+	'Stopper','Test Tube','Test Tube Brush','Test Tube Holder','Test Tube Rack',
+	'Tongs','Tripod Stand','Volumetric Flask','Wash Bottle','Watch Glass',
+	'Wire Gauze'];cst_list.sort()
+
+	var chm_list = ['AAAA chm','Acetic Acid (Concentrated)','Aluminum Sulfate','Ammonia',
+	'Ammonium Chloride','Barium Chloride','Benedict’s Solution',
+	'Blue Litmus Paper','Calcium Carbonate','Calcium Chloride',
+	'Copper (II) Sulfate','Ethanol (absolute)','Hydrochloric Acid',
+	'Iron (II) Sulfate','Iron (III) Chloride','Magnesium Sulfate (Epsom Salt)',
+	'Marble Chips','Methyl Orange','Nitric Acid','pH Paper','Phenolphthalein',
+	'Potassium Permanganate','Red Litmus Paper','Silver Nitrate','Sodium Bicarbonate',
+	'Sodium Carbonate','Sodium Thiosulfate','Zinc Granules','Zinc Nitrate'];chm_list.sort()
+
+	var bio_list = ['AAAA bio','Blank Slides','Dissecting Kit','Dissecting Tray','Lens Paper',
+	'Magnifying Glass','Methylene Blue','Microscope','Petri Dish',
+	'Prepared Slides','Slide Coverslips'];bio_list.sort()
+
+	var sft_list = ['AAAA sft','Fire Extinguisher','First Aid Kit','Goggles','Latex Gloves','Thick Rubber Gloves'];sft_list.sort()
+
+	create_item_list(phy_list);
+	create_item_list(cst_list);
+	create_item_list(chm_list);
+	create_item_list(bio_list);
+	create_item_list(sft_list);
+
+	function create_item_list(string_list){
+			
+		var sbj_code = string_list[0].substring(5,8);
+
+		var list_table = document.getElementById(sbj_code+"_table");
+
+  		for(var ii=1; ii < string_list.length; ii++) {
+
+			row_index_str = ii.toString()
+
+		  	if (ii<10) {row_index_str = '00'+row_index_str} 
+			   
+                           if (ii>9 && ii<100) {row_index_str = '0'+row_index_str} 
+			
+				var item_name = document.createElement("input");
+				item_name.setAttribute("type", "hidden");
+				item_name.setAttribute("name", sbj_code+row_index_str+"-n");
+				item_name.setAttribute("value", value=string_list[ii]);
+			
+				row = list_table.insertRow();
+				cellA = row.insertCell(0);
+				cellB = row.insertCell(1);
+				cellC = row.insertCell(2);
+				cellD = row.insertCell(3);
+				cellE = row.insertCell(4);
+				
+				cellA.innerHTML = "<input name="+sbj_code+row_index_str+"-a\" type=\"checkbox\">";
+				cellB.innerHTML = item_name.value;
+				cellC.innerHTML = "<input name="+sbj_code+row_index_str+"-b\" type=\"text\" size=\"3\">";
+				cellD.innerHTML = "<select name="+sbj_code+row_index_str+"-c\"><option value=\"LD\">LD</option><option value=\"USD\">USD</option></select>";
+				cellE.innerHTML = "<input name="+sbj_code+row_index_str+"-d\" type=\"text\" size=\"6\">";
+
+					    }
+					}
+
+</script>
+
+
+<!-- ########################### Map Scripts ################################ -->
+
+<script type="text/javascript">
+    var theme = 'http://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+    var lat = 6.533645;
+    var lon = -9.415283;
+    var alt =481;
+    var macarte = null;
+    var i = 0;
+    var markerClusters;
+    var popup = L.popup();
+    var MyEdit = null;
+    var inputlatt = document.getElementById("shoplatt"); 
+    var inputlong = document.getElementById("shoplong"); 
+
+   function initMap(){
+      macarte = L.map('map').setView([lat, lon], 7);
+      L.control.locate().addTo(macarte);
+      markerClusters = L.markerClusterGroup; 
+      L.tileLayer(theme, {minZoom: 7,maxZoom: 20}).addTo(macarte);
+      macarte.on('click', onMapClick);
+  }
+
+    function onMapClick(e) {
+	var shoplatlong = e.latlng.toString();
+	shoplatlong = shoplatlong.substring(7, shoplatlong.length-1); 		
+	
+        popup
+           .setLatLng(e.latlng)
+	   .setContent("Shop")
+           .openOn(macarte);
+        //var marker = L.marker(e.latlng).addTo(macarte) 		
+        document.getElementById("locationmessage").innerHTML = "Shop Indicated at Coordinates"	
+
+        inputlatt.setAttribute('value', shoplatlong.split(", ")[0]); 
+        inputlong.setAttribute('value', shoplatlong.split(", ")[1]); 
+		}
+
+        $(document).ready(function(){initMap();});
+
+        document.getElementById("locationmessage").innerHTML = "Select Location"
+
+
+</script>
+
+</body>
+</html>

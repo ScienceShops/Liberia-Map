@@ -129,3 +129,5 @@ dmypy.json
 # App
 collected-static
 secrets/
+
+.DS_Store

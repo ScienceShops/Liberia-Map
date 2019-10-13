@@ -1,7 +1,9 @@
 from django.http import JsonResponse
 from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 
+from shops import forms
 from shops import models
 
 
@@ -62,3 +64,8 @@ class PointListView(JSONResponseMixin, ListView):
         object_list = context.get('object_list')
         return [obj.to_dict() for obj in object_list]
 
+
+class NewShopFormView(FormView):
+    template_name = 'shops/new_shop.html'
+    form_class = forms.NewShopForm
+    success_url = '/'
